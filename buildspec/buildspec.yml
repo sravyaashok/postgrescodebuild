@@ -1,0 +1,27 @@
+version: 0.2
+phases:
+  install:
+    commands:
+      - echo "codebuild directory `pwd`"
+      - echo "changing directory to install terrform"
+      - cd "/usr/bin"
+      - "curl -s -qL -o terraform.zip https://releases.hasicorp.com/terraform/1.2.4/terraform_1.2.4_linux_amd64.zip"
+      - "unzip -o terraform.zip"
+  pre_build:
+    commands:
+      - echo "Terraform directory `pwd`"
+      - echo "changing directory to codebuild source directory"
+      - cd "$CODEBUILD_SRC_DIR"
+      - cd "terraform"
+      - echo "tf_action --> '${tf_action}"
+      - export TF_VAR_environment_name=${environment_name}
+      - export TF_VAR_db_instance_class=${db_instance_class}
+      - export TF_VAR_db_version=${db_version}
+      - export TF_VAR_db_instance_identifier=${db_instance_identifier}
+      - export TF_VAR_db_name=${db_name}
+      - export TF_VAR_db_master_username=${db_master_username}
+      - export TF_VAR_db_master_password_secret=${db_master_password_secret}
+      - echo "s3_bucket_name --> '${s3_bucket_name}"
+      - echo "s3_bucket_key --> '${s3_bucket_key}"
+      - echo "s3_bucket_region --> '${s3_bucket_region}"
+      - terraform init -no-color -backend-config="bucket=${s3_bucket_name}" -backend-config="bucket=${s3_bucket_key}" -backend-config="bucket=${s3_bucket_region}"
